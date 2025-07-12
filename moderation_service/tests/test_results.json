@@ -1,0 +1,845 @@
+{
+  "health_check": true,
+  "service_info": true,
+  "text_moderation": {
+    "Normal Question 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9992764592170715,
+        "categories": {
+          "negative_sentiment": 0.9992764592170715
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "allow",
+      "actual": "flag"
+    },
+    "Normal Question 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9977311491966248,
+        "categories": {
+          "negative_sentiment": 0.9977311491966248
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "allow",
+      "actual": "flag"
+    },
+    "Normal Comment 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "allow",
+      "actual": "allow"
+    },
+    "Normal Comment 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "allow",
+      "actual": "allow"
+    },
+    "Normal Answer 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9987473487854004,
+        "categories": {
+          "negative_sentiment": 0.9987473487854004
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "allow",
+      "actual": "flag"
+    },
+    "Normal Answer 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9903076887130737,
+        "categories": {
+          "negative_sentiment": 0.9903076887130737
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "allow",
+      "actual": "flag"
+    },
+    "Profanity Test 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9996484518051147,
+        "categories": {
+          "toxic": 0.9943073391914368,
+          "obscene": 0.982201874256134,
+          "negative_sentiment": 0.9996484518051147
+        },
+        "flagged_reasons": [
+          "obscene",
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Profanity Test 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9997655749320984,
+        "categories": {
+          "toxic": 0.9737486243247986,
+          "obscene": 0.8948320150375366,
+          "negative_sentiment": 0.9997655749320984
+        },
+        "flagged_reasons": [
+          "obscene",
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Profanity Test 3": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.999679684638977,
+        "categories": {
+          "toxic": 0.9796258807182312,
+          "obscene": 0.9406480193138123,
+          "negative_sentiment": 0.999679684638977
+        },
+        "flagged_reasons": [
+          "obscene",
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Profanity Test 4": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9994969367980957,
+        "categories": {
+          "negative_sentiment": 0.9994969367980957
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Profanity Test 5": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9997779726982117,
+        "categories": {
+          "toxic": 0.8519429564476013,
+          "obscene": 0.6923266053199768,
+          "negative_sentiment": 0.9997779726982117
+        },
+        "flagged_reasons": [
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Hate Speech Test 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9995664954185486,
+        "categories": {
+          "toxic": 0.9854932427406311,
+          "identity_hate": 0.9227383732795715,
+          "insult": 0.7393609285354614,
+          "obscene": 0.5195154547691345,
+          "negative_sentiment": 0.9995664954185486
+        },
+        "flagged_reasons": [
+          "insult",
+          "identity_hate",
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "block",
+      "actual": "flag"
+    },
+    "Hate Speech Test 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9920263886451721,
+        "categories": {
+          "toxic": 0.5066932439804077,
+          "negative_sentiment": 0.9920263886451721
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "block",
+      "actual": "flag"
+    },
+    "Hate Speech Test 3": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9991807341575623,
+        "categories": {
+          "toxic": 0.7137854099273682,
+          "negative_sentiment": 0.9991807341575623
+        },
+        "flagged_reasons": [
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "block",
+      "actual": "flag"
+    },
+    "Hate Speech Test 4": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9996645450592041,
+        "categories": {
+          "negative_sentiment": 0.9996645450592041
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "block",
+      "actual": "flag"
+    },
+    "Hate Speech Test 5": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9006701707839966,
+        "categories": {
+          "toxic": 0.9006701707839966,
+          "identity_hate": 0.7380058169364929
+        },
+        "flagged_reasons": [
+          "identity_hate",
+          "toxic"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "block",
+      "actual": "flag"
+    },
+    "Threat Test 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9938985109329224,
+        "categories": {
+          "toxic": 0.8105708956718445,
+          "threat": 0.7419407963752747,
+          "negative_sentiment": 0.9938985109329224,
+          "threats": 0.6
+        },
+        "flagged_reasons": [
+          "threat",
+          "threats",
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "block"
+      },
+      "expected": "block",
+      "actual": "block"
+    },
+    "Threat Test 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9996602535247803,
+        "categories": {
+          "toxic": 0.8695922493934631,
+          "threat": 0.8544034361839294,
+          "negative_sentiment": 0.9996602535247803
+        },
+        "flagged_reasons": [
+          "threat",
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "block"
+      },
+      "expected": "block",
+      "actual": "block"
+    },
+    "Threat Test 3": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9974786639213562,
+        "categories": {
+          "toxic": 0.5778006315231323,
+          "negative_sentiment": 0.9974786639213562
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "block",
+      "actual": "flag"
+    },
+    "Threat Test 4": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.999238133430481,
+        "categories": {
+          "negative_sentiment": 0.999238133430481
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "block",
+      "actual": "flag"
+    },
+    "Threat Test 5": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.5668138265609741,
+        "categories": {
+          "toxic": 0.5668138265609741
+        },
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "block",
+      "actual": "allow"
+    },
+    "Spam Test 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 1.0,
+        "categories": {
+          "spam": 1.0
+        },
+        "flagged_reasons": [
+          "spam"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Spam Test 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9833094477653503,
+        "categories": {
+          "negative_sentiment": 0.9833094477653503
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Spam Test 3": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "flag",
+      "actual": "allow"
+    },
+    "Spam Test 4": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9993543028831482,
+        "categories": {
+          "negative_sentiment": 0.9993543028831482,
+          "spam": 0.4
+        },
+        "flagged_reasons": [
+          "spam",
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Spam Test 5": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "flag",
+      "actual": "allow"
+    },
+    "All Caps Test 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9732480645179749,
+        "categories": {
+          "negative_sentiment": 0.9732480645179749,
+          "all_caps": 0.8
+        },
+        "flagged_reasons": [
+          "all_caps",
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "All Caps Test 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.999788224697113,
+        "categories": {
+          "negative_sentiment": 0.999788224697113,
+          "all_caps": 0.8
+        },
+        "flagged_reasons": [
+          "all_caps",
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "All Caps Test 3": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.3333333333333333,
+        "categories": {
+          "excessive_punctuation": 0.3333333333333333
+        },
+        "flagged_reasons": [
+          "excessive_punctuation"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "All Caps Test 4": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.995639443397522,
+        "categories": {
+          "negative_sentiment": 0.995639443397522,
+          "all_caps": 0.8
+        },
+        "flagged_reasons": [
+          "all_caps",
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "All Caps Test 5": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9575989246368408,
+        "categories": {
+          "negative_sentiment": 0.9575989246368408,
+          "excessive_punctuation": 0.75,
+          "all_caps": 0.8
+        },
+        "flagged_reasons": [
+          "excessive_punctuation",
+          "all_caps",
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Excessive Punctuation 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 1.0,
+        "categories": {
+          "excessive_punctuation": 1.0
+        },
+        "flagged_reasons": [
+          "excessive_punctuation"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Excessive Punctuation 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 1.0,
+        "categories": {
+          "excessive_punctuation": 1.0
+        },
+        "flagged_reasons": [
+          "excessive_punctuation"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Excessive Punctuation 3": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9970743656158447,
+        "categories": {
+          "negative_sentiment": 0.9970743656158447
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Excessive Punctuation 4": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 1.0,
+        "categories": {
+          "negative_sentiment": 0.9993564486503601,
+          "excessive_punctuation": 1.0
+        },
+        "flagged_reasons": [
+          "excessive_punctuation",
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Excessive Punctuation 5": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 1.0,
+        "categories": {
+          "excessive_punctuation": 1.0
+        },
+        "flagged_reasons": [
+          "excessive_punctuation"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Multilingual Normal 1": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9588445425033569,
+        "categories": {
+          "negative_sentiment": 0.9588445425033569
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "allow",
+      "actual": "flag"
+    },
+    "Multilingual Normal 2": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "allow",
+      "actual": "allow"
+    },
+    "Multilingual Profanity": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9993425011634827,
+        "categories": {
+          "toxic": 0.9347348809242249,
+          "negative_sentiment": 0.9993425011634827
+        },
+        "flagged_reasons": [
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Multilingual Hate Speech": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "block",
+      "actual": "allow"
+    },
+    "Empty Content": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "flag",
+      "actual": "allow"
+    },
+    "Very Short Content": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "allow",
+      "actual": "allow"
+    },
+    "Long Content": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9686057567596436,
+        "categories": {
+          "negative_sentiment": 0.9686057567596436
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "allow",
+      "actual": "flag"
+    },
+    "Code Snippet": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9982975125312805,
+        "categories": {
+          "negative_sentiment": 0.9982975125312805
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "allow",
+      "actual": "flag"
+    },
+    "Mixed Case": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9922518134117126,
+        "categories": {
+          "negative_sentiment": 0.9922518134117126
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Emojis Only": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "allow",
+      "actual": "allow"
+    },
+    "Numbers Only": {
+      "success": true,
+      "result": {
+        "is_appropriate": true,
+        "confidence": 0.0,
+        "categories": {},
+        "flagged_reasons": [],
+        "moderation_action": "allow"
+      },
+      "expected": "allow",
+      "actual": "allow"
+    },
+    "Special Characters": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 1.0,
+        "categories": {
+          "negative_sentiment": 0.9881766438484192,
+          "excessive_punctuation": 1.0
+        },
+        "flagged_reasons": [
+          "excessive_punctuation",
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Mixed Profanity": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.999607503414154,
+        "categories": {
+          "toxic": 0.9960124492645264,
+          "obscene": 0.9837154746055603,
+          "insult": 0.6075573563575745,
+          "negative_sentiment": 0.999607503414154
+        },
+        "flagged_reasons": [
+          "obscene",
+          "negative_sentiment",
+          "toxic"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "flag",
+      "actual": "flag"
+    },
+    "Subtle Hate Speech": {
+      "success": true,
+      "result": {
+        "is_appropriate": false,
+        "confidence": 0.9975453019142151,
+        "categories": {
+          "negative_sentiment": 0.9975453019142151
+        },
+        "flagged_reasons": [
+          "negative_sentiment"
+        ],
+        "moderation_action": "flag"
+      },
+      "expected": "block",
+      "actual": "flag"
+    }
+  },
+  "batch_moderation": {
+    "success": true,
+    "result": {
+      "results": {
+        "text": {
+          "is_appropriate": false,
+          "confidence": 0.9963392019271851,
+          "categories": {
+            "negative_sentiment": 0.9963392019271851
+          },
+          "flagged_reasons": [
+            "negative_sentiment"
+          ],
+          "moderation_action": "flag"
+        }
+      },
+      "overall_decision": "block"
+    }
+  },
+  "api_documentation": true
+}

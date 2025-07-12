@@ -1,0 +1,999 @@
+{
+	"info": {
+		"_postman_id": "stackit-content-moderation-api",
+		"name": "StackIt Content Moderation API",
+		"description": "A comprehensive collection for testing the StackIt Content Moderation API (Text + Image only). This free, open-source API provides AI-powered content moderation using Hugging Face models and computer vision.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "stackit-moderation"
+	},
+	"item": [
+		{
+			"name": "Health & Info",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Check if the moderation service is running and models are loaded."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/health",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"health"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": \"healthy\",\n  \"service\": \"content_moderation\",\n  \"version\": \"free\",\n  \"models_loaded\": {\n    \"text_moderator\": true,\n    \"image_moderator\": true\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Service Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"info"
+							]
+						},
+						"description": "Get detailed information about the service capabilities and features."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/info",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"info"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"service_name\": \"StackIt Content Moderation API\",\n  \"version\": \"1.0.0 (Free Version)\",\n  \"description\": \"AI-powered content moderation using only free and open-source tools\",\n  \"features\": {\n    \"text_moderation\": {\n      \"models\": [\"Hugging Face Toxic-BERT\", \"Sentiment Analysis\", \"Custom Patterns\"],\n      \"capabilities\": [\"Profanity\", \"Hate Speech\", \"Threats\", \"Spam\", \"Sentiment Analysis\"]\n    },\n    \"image_moderation\": {\n      \"models\": [\"OpenCV Cascade Classifiers\", \"Color Analysis\", \"Texture Analysis\"],\n      \"capabilities\": [\"Skin Tone Detection\", \"Object Detection\", \"Color Analysis\", \"Size Validation\"]\n    }\n  },\n  \"cost\": \"Free - No paid APIs required\",\n  \"technologies\": [\"FastAPI\", \"Hugging Face Transformers\", \"OpenCV\", \"PIL\", \"NLTK\", \"TextBlob\"]\n}"
+						}
+					]
+				}
+			],
+			"description": "Basic service health and information endpoints."
+		},
+		{
+			"name": "Text Moderation",
+			"item": [
+				{
+					"name": "Moderate Text - Normal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"How do I implement a binary search tree in Python?\",\n  \"content_type\": \"question\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/text",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"text"
+							]
+						},
+						"description": "Moderate normal, appropriate text content."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"content\": \"How do I implement a binary search tree in Python?\",\n  \"content_type\": \"question\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/text",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"text"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"is_appropriate\": true,\n  \"confidence\": 0.92,\n  \"categories\": {\n    \"normal\": 0.92,\n    \"safe\": 0.95\n  },\n  \"flagged_reasons\": [],\n  \"moderation_action\": \"allow\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Moderate Text - Profanity",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"This is a fucking stupid question\",\n  \"content_type\": \"question\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/text",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"text"
+							]
+						},
+						"description": "Test text with profanity (should be flagged)."
+					},
+					"response": [
+						{
+							"name": "Flagged Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"content\": \"This is a fucking stupid question\",\n  \"content_type\": \"question\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/text",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"text"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"is_appropriate\": false,\n  \"confidence\": 0.78,\n  \"categories\": {\n    \"profanity\": 0.78,\n    \"inappropriate\": 0.75\n  },\n  \"flagged_reasons\": [\"profanity\"],\n  \"moderation_action\": \"flag\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Moderate Text - Hate Speech",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"All white people are stupid and should be eliminated\",\n  \"content_type\": \"comment\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/text",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"text"
+							]
+						},
+						"description": "Test text with hate speech (should be blocked)."
+					},
+					"response": [
+						{
+							"name": "Blocked Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"content\": \"All white people are stupid and should be eliminated\",\n  \"content_type\": \"comment\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/text",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"text"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"is_appropriate\": false,\n  \"confidence\": 0.85,\n  \"categories\": {\n    \"hate_speech\": 0.85,\n    \"discrimination\": 0.82\n  },\n  \"flagged_reasons\": [\"hate_speech\", \"discrimination\"],\n  \"moderation_action\": \"block\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Moderate Text - Threats",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"I will kill everyone who disagrees with me\",\n  \"content_type\": \"answer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/text",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"text"
+							]
+						},
+						"description": "Test text with violent threats (should be blocked)."
+					},
+					"response": [
+						{
+							"name": "Blocked Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"content\": \"I will kill everyone who disagrees with me\",\n  \"content_type\": \"answer\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/text",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"text"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"is_appropriate\": false,\n  \"confidence\": 0.90,\n  \"categories\": {\n    \"threats\": 0.90,\n    \"violence\": 0.88\n  },\n  \"flagged_reasons\": [\"threats\", \"violence\"],\n  \"moderation_action\": \"block\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Text moderation endpoints for various content types including normal, profanity, hate speech, and threats."
+		},
+		{
+			"name": "Image Moderation",
+			"item": [
+				{
+					"name": "Moderate Image - File Upload",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": [],
+									"description": "Image file to moderate (JPEG, PNG, GIF, BMP, WebP). Max size: 10MB"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/image",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"image"
+							]
+						},
+						"description": "Upload and moderate an image file. Supported formats: JPEG, PNG, GIF, BMP, WebP. Maximum file size: 10MB."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/image",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"image"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"is_appropriate\": true,\n  \"confidence\": 0.85,\n  \"categories\": {\n    \"normal\": 0.85,\n    \"safe\": 0.90\n  },\n  \"flagged_reasons\": [],\n  \"moderation_action\": \"allow\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Moderate Image - URL",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "image_url",
+									"value": "https://via.placeholder.com/400x300/lightblue/000000?text=Test+Image",
+									"description": "URL of the image to moderate"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/image",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"image"
+							]
+						},
+						"description": "Moderate an image from a URL. The URL must be publicly accessible and point to a valid image file."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "image_url",
+											"value": "https://via.placeholder.com/400x300/lightblue/000000?text=Test+Image"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/image",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"image"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"is_appropriate\": true,\n  \"confidence\": 0.85,\n  \"categories\": {\n    \"normal\": 0.85,\n    \"safe\": 0.90\n  },\n  \"flagged_reasons\": [],\n  \"moderation_action\": \"allow\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Moderate Image - Skin Tone (Flagged)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "image_url",
+									"value": "https://via.placeholder.com/400x300/ffd4b3/000000?text=Skin+Tone+Test",
+									"description": "URL of image with skin-like colors (should be flagged)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/image",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"image"
+							]
+						},
+						"description": "Test image with skin-like colors that should be flagged for review."
+					},
+					"response": [
+						{
+							"name": "Flagged Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "image_url",
+											"value": "https://via.placeholder.com/400x300/ffd4b3/000000?text=Skin+Tone+Test"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/image",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"image"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"is_appropriate\": false,\n  \"confidence\": 0.72,\n  \"categories\": {\n    \"high_skin_tone\": 0.72\n  },\n  \"flagged_reasons\": [\"high_skin_tone\"],\n  \"moderation_action\": \"flag\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Image moderation endpoints supporting both file uploads and URL-based moderation."
+		},
+		{
+			"name": "Batch Moderation",
+			"item": [
+				{
+					"name": "Batch - Text Only",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "text_content",
+									"value": "This is a test question about programming",
+									"description": "Text content to moderate"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/batch",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"batch"
+							]
+						},
+						"description": "Batch moderation with text content only."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "text_content",
+											"value": "This is a test question about programming"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/batch",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"batch"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"results\": {\n    \"text\": {\n      \"is_appropriate\": true,\n      \"confidence\": 0.92,\n      \"categories\": {\n        \"normal\": 0.92\n      },\n      \"flagged_reasons\": [],\n      \"moderation_action\": \"allow\"\n    }\n  },\n  \"overall_decision\": \"allow\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Batch - Text + Image URL",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "text_content",
+									"value": "Check out this image I found online",
+									"description": "Text content to moderate"
+								},
+								{
+									"key": "image_url",
+									"value": "https://via.placeholder.com/400x300/lightblue/000000?text=Test+Image",
+									"description": "URL of image to moderate"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/batch",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"batch"
+							]
+						},
+						"description": "Batch moderation with text content and image URL."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "text_content",
+											"value": "Check out this image I found online"
+										},
+										{
+											"key": "image_url",
+											"value": "https://via.placeholder.com/400x300/lightblue/000000?text=Test+Image"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/batch",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"batch"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"results\": {\n    \"text\": {\n      \"is_appropriate\": true,\n      \"confidence\": 0.90,\n      \"categories\": {\n        \"normal\": 0.90\n      },\n      \"flagged_reasons\": [],\n      \"moderation_action\": \"allow\"\n    },\n    \"image\": {\n      \"is_appropriate\": true,\n      \"confidence\": 0.85,\n      \"categories\": {\n        \"normal\": 0.85\n      },\n      \"flagged_reasons\": [],\n      \"moderation_action\": \"allow\"\n    }\n  },\n  \"overall_decision\": \"allow\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Batch - Text + Image File",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "text_content",
+									"value": "Here's an image I want to share",
+									"description": "Text content to moderate",
+									"type": "text"
+								},
+								{
+									"key": "image_file",
+									"type": "file",
+									"src": [],
+									"description": "Image file to moderate"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/batch",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"batch"
+							]
+						},
+						"description": "Batch moderation with text content and image file upload."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "text_content",
+											"value": "Here's an image I want to share",
+											"type": "text"
+										},
+										{
+											"key": "image_file",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/batch",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"batch"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"results\": {\n    \"text\": {\n      \"is_appropriate\": true,\n      \"confidence\": 0.88,\n      \"categories\": {\n        \"normal\": 0.88\n      },\n      \"flagged_reasons\": [],\n      \"moderation_action\": \"allow\"\n    },\n    \"image\": {\n      \"is_appropriate\": true,\n      \"confidence\": 0.85,\n      \"categories\": {\n        \"normal\": 0.85\n      },\n      \"flagged_reasons\": [],\n      \"moderation_action\": \"allow\"\n    }\n  },\n  \"overall_decision\": \"allow\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Batch moderation endpoints for processing multiple content types in a single request."
+		},
+		{
+			"name": "Error Handling",
+			"item": [
+				{
+					"name": "Invalid Image URL",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "image_url",
+									"value": "https://invalid-url-that-does-not-exist.com/image.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/image",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"image"
+							]
+						},
+						"description": "Test error handling with an invalid image URL."
+					},
+					"response": [
+						{
+							"name": "Error Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "image_url",
+											"value": "https://invalid-url-that-does-not-exist.com/image.jpg"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/image",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"image"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"detail\": \"Failed to download image from URL: Connection timeout\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Missing Parameters",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{base_url}}/moderate/image",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"moderate",
+								"image"
+							]
+						},
+						"description": "Test error handling when no file or URL is provided."
+					},
+					"response": [
+						{
+							"name": "Error Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": []
+								},
+								"url": {
+									"raw": "http://localhost:8000/moderate/image",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"moderate",
+										"image"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"detail\": \"Either file or image_url must be provided\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Error handling examples for various edge cases and invalid inputs."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Pre-request script to set up any necessary variables",
+					"console.log('Making request to: ' + pm.request.url);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Test script to validate responses",
+					"pm.test('Status code is 200', function () {",
+					"    pm.response.to.have.status(200);",
+					"});",
+					"",
+					"pm.test('Response has JSON content type', function () {",
+					"    pm.response.to.have.header('content-type');",
+					"    pm.expect(pm.response.headers.get('content-type')).to.include('application/json');",
+					"});",
+					"",
+					"pm.test('Response body is valid JSON', function () {",
+					"    pm.response.to.be.json;",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+} 
