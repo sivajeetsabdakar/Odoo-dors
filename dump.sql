@@ -1,91 +1,105 @@
--- Drop all tables if they already exist (for dev reset purposes)
-DROP TABLE IF EXISTS comments, votes, question_tags, notifications, images, answers, questions, tags, users CASCADE;
+-- ========================================
+-- StackIt Q&A Platform - Full SQL Schema
+-- Target: Microsoft SQL Server (SSMS)
+-- ========================================
 
--- Users Table
+-- 1. Create Database
+IF NOT EXISTS (
+    SELECT name FROM sys.databases WHERE name = N'StackIt'
+)
+BEGIN
+    CREATE DATABASE StackIt;
+    PRINT 'Database StackIt created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Database StackIt already exists.';
+END
+GO
+
+-- 2. Use the database
+USE StackIt;
+GO
+
+-- 3. Drop tables if they already exist (order matters due to FK constraints)
+IF OBJECT_ID('dbo.notifications', 'U') IS NOT NULL DROP TABLE dbo.notifications;
+IF OBJECT_ID('dbo.votes', 'U') IS NOT NULL DROP TABLE dbo.votes;
+IF OBJECT_ID('dbo.answers', 'U') IS NOT NULL DROP TABLE dbo.answers;
+IF OBJECT_ID('dbo.question_tags', 'U') IS NOT NULL DROP TABLE dbo.question_tags;
+IF OBJECT_ID('dbo.tags', 'U') IS NOT NULL DROP TABLE dbo.tags;
+IF OBJECT_ID('dbo.questions', 'U') IS NOT NULL DROP TABLE dbo.questions;
+IF OBJECT_ID('dbo.users', 'U') IS NOT NULL DROP TABLE dbo.users;
+GO
+
+-- 4. Create users table
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    role VARCHAR(10) CHECK (role IN ('user', 'admin')) DEFAULT 'user',
-    is_banned BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    username NVARCHAR(100) UNIQUE NOT NULL,
+    email NVARCHAR(200) UNIQUE NOT NULL,
+    password_hash NVARCHAR(255) NOT NULL,
+    role NVARCHAR(20) CHECK (role IN ('user', 'admin')) DEFAULT 'user',
+    created_at DATETIME DEFAULT GETDATE()
 );
+GO
 
--- Questions Table
+-- 5. Create questions table
 CREATE TABLE questions (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL FOREIGN KEY REFERENCES users(id),
+    title NVARCHAR(255) NOT NULL,
+    description NVARCHAR(MAX) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME
 );
+GO
 
--- Answers Table
-CREATE TABLE answers (
-    id SERIAL PRIMARY KEY,
-    question_id INTEGER REFERENCES questions(id) ON DELETE CASCADE,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    content TEXT NOT NULL,
-    is_accepted BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Tags Table
+-- 6. Create tags table
 CREATE TABLE tags (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(100) UNIQUE NOT NULL
 );
+GO
 
--- Question <-> Tag many-to-many
+-- 7. Create question_tags table (many-to-many relationship)
 CREATE TABLE question_tags (
-    question_id INTEGER REFERENCES questions(id) ON DELETE CASCADE,
-    tag_id INTEGER REFERENCES tags(id) ON DELETE CASCADE,
+    question_id INT NOT NULL FOREIGN KEY REFERENCES questions(id),
+    tag_id INT NOT NULL FOREIGN KEY REFERENCES tags(id),
     PRIMARY KEY (question_id, tag_id)
 );
+GO
 
--- Votes Table
+-- 8. Create answers table
+CREATE TABLE answers (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    question_id INT NOT NULL FOREIGN KEY REFERENCES questions(id),
+    user_id INT NOT NULL FOREIGN KEY REFERENCES users(id),
+    description NVARCHAR(MAX) NOT NULL,
+    is_accepted BIT DEFAULT 0,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME
+);
+GO
+
+-- 9. Create votes table
 CREATE TABLE votes (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    answer_id INTEGER REFERENCES answers(id) ON DELETE CASCADE,
-    vote_type SMALLINT CHECK (vote_type IN (1, -1)), -- 1 = upvote, -1 = downvote
-    UNIQUE (user_id, answer_id)
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL FOREIGN KEY REFERENCES users(id),
+    answer_id INT NOT NULL FOREIGN KEY REFERENCES answers(id),
+    vote_type INT CHECK (vote_type IN (1, -1)) NOT NULL,
+    CONSTRAINT unique_vote UNIQUE (user_id, answer_id)
 );
+GO
 
--- Notifications Table
+-- 10. Create notifications table
 CREATE TABLE notifications (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    type VARCHAR(10) CHECK (type IN ('answer', 'comment', 'mention')) NOT NULL,
-    source_id INTEGER,
-    message TEXT,
-    is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL FOREIGN KEY REFERENCES users(id),
+    type NVARCHAR(50), -- 'answer', 'comment', 'mention'
+    content NVARCHAR(255),
+    is_read BIT DEFAULT 0,
+    link NVARCHAR(255),
+    created_at DATETIME DEFAULT GETDATE()
 );
+GO
 
--- Comments Table (for answers and questions)
-CREATE TABLE comments (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    question_id INTEGER REFERENCES questions(id) ON DELETE CASCADE,
-    answer_id INTEGER REFERENCES answers(id) ON DELETE CASCADE,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Uploaded Images Table (used in rich text)
-CREATE TABLE images (
-    id SERIAL PRIMARY KEY,
-    url TEXT NOT NULL,
-    uploaded_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Indexes for performance
-CREATE INDEX idx_question_tags_tag_id ON question_tags(tag_id);
-CREATE INDEX idx_answers_question_id ON answers(question_id);
-CREATE INDEX idx_votes_answer_id ON votes(answer_id);
-CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+PRINT 'StackIt schema created successfully.';
