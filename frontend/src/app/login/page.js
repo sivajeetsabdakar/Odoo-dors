@@ -94,14 +94,6 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-
-          <div className="mt-4 p-4 bg-accent/10 border border-accent/20 rounded-lg">
-            <p className="text-sm text-accent font-medium mb-1">Demo Accounts:</p>
-            <div className="text-xs text-muted-foreground space-y-1">
-              <div>Admin: admin@stackit.com / password</div>
-              <div>User: user@stackit.com / password</div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

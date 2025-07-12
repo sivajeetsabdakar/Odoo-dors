@@ -3,23 +3,29 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import { useData } from "@/contexts/DataContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import RichTextEditor from "@/components/RichTextEditor"
+import ImageUpload from "@/components/ImageUpload"
 import GradientCircleBackground from "@/components/GradientCircleBackground"
 import { X, Plus } from "lucide-react"
 
 export default function AskQuestionPage() {
   const { user, loading } = useAuth()
+  const { createQuestion, error: dataError } = useData()
   const router = useRouter()
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [tags, setTags] = useState([])
   const [tagInput, setTagInput] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [uploadedImages, setUploadedImages] = useState([])
+  const [error, setError] = useState("")
 
   useEffect(() => {
     if (!loading && !user) {
@@ -38,23 +44,42 @@ export default function AskQuestionPage() {
     setTags(tags.filter((tag) => tag !== tagToRemove))
   }
 
+  const handleImagesUploaded = (images) => {
+    setUploadedImages(images)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!title.trim() || !description.trim()) return
+    if (!title.trim() || !description.trim()) {
+      setError("Title and description are required")
+      return
+    }
+
+    if (tags.length === 0) {
+      setError("Please add at least one tag")
+      return
+    }
 
     setSubmitting(true)
+    setError("")
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Create question data with Cloudinary image URLs
+      const questionData = {
+        title: title.trim(),
+        description: description,
+        tags: tags,
+        imageUrls: uploadedImages.map(img => img.url) // Send only URLs to backend
+      }
 
-      // Mock question ID
-      const questionId = Date.now().toString()
+      // Create the question
+      const newQuestion = await createQuestion(questionData, user.id)
 
       // Redirect to the new question
-      router.push(`/question/${questionId}`)
+      router.push(`/question/${newQuestion.id}`)
     } catch (error) {
       console.error("Error submitting question:", error)
+      setError(error.message || "Failed to submit question. Please try again.")
     } finally {
       setSubmitting(false)
     }
@@ -88,6 +113,13 @@ export default function AskQuestionPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Error Alert */}
+              {(error || dataError) && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error || dataError}</AlertDescription>
+                </Alert>
+              )}
+
               {/* Title */}
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-foreground font-medium text-base">Title</Label>
@@ -115,6 +147,16 @@ export default function AskQuestionPage() {
                 <p className="text-sm text-muted-foreground">
                   Include all the information someone would need to answer your question
                 </p>
+              </div>
+
+              {/* Image Upload */}
+              <div className="space-y-3">
+                <Label className="text-foreground font-medium text-base">Images (Optional)</Label>
+                <ImageUpload
+                  onImagesUploaded={handleImagesUploaded}
+                  maxFiles={5}
+                  folder="stack-it/questions"
+                />
               </div>
 
               {/* Tags */}
@@ -168,7 +210,7 @@ export default function AskQuestionPage() {
               <div className="flex gap-4 pt-4">
                 <Button 
                   type="submit" 
-                  disabled={submitting || !title.trim() || !description.trim()} 
+                  disabled={submitting || !title.trim() || !description.trim() || tags.length === 0} 
                   className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all font-medium px-8"
                 >
                   {submitting ? "Publishing..." : "Publish Question"}

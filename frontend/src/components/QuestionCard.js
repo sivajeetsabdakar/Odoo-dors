@@ -3,8 +3,9 @@
 import Link from "next/link"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { MessageSquare, ArrowUp, Clock } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { MessageSquare, ArrowUp, Clock, CheckCircle } from "lucide-react"
+import { fileUploadApi } from "@/lib/api"
 
 export default function QuestionCard({ question }) {
   const formatDate = (dateString) => {
@@ -16,6 +17,12 @@ export default function QuestionCard({ question }) {
     if (diffInHours < 24) return `${diffInHours}h ago`
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`
     return date.toLocaleDateString()
+  }
+
+  const getAvatarUrl = (avatarUrl) => {
+    if (!avatarUrl) return null
+    if (avatarUrl.startsWith('http')) return avatarUrl
+    return fileUploadApi.getFileUrl(avatarUrl)
   }
 
   return (
@@ -30,7 +37,7 @@ export default function QuestionCard({ question }) {
           </h3>
         </Link>
         <div className="flex flex-wrap gap-2 mt-3">
-          {question.tags.map((tag) => (
+          {question.tags && question.tags.map((tag) => (
             <Badge 
               key={tag} 
               variant="secondary" 
@@ -46,22 +53,33 @@ export default function QuestionCard({ question }) {
           <div className="flex items-center space-x-6 text-sm text-muted-foreground">
             <div className="flex items-center space-x-1 hover:text-accent transition-colors cursor-pointer">
               <ArrowUp className="h-4 w-4" />
-              <span className="font-medium">{question.votes}</span>
+              <span className="font-medium">{question.voteCount || 0}</span>
             </div>
             <div className="flex items-center space-x-1 hover:text-primary transition-colors cursor-pointer">
               <MessageSquare className="h-4 w-4" />
-              <span className="font-medium">{question.answerCount}</span>
+              <span className="font-medium">{question.answerCount || 0}</span>
+              {question.hasAcceptedAnswer && (
+                <CheckCircle className="h-3 w-3 text-green-500 ml-1" />
+              )}
             </div>
             <div className="flex items-center space-x-1">
               <Clock className="h-4 w-4" />
               <span>{formatDate(question.createdAt)}</span>
             </div>
+            <div className="flex items-center space-x-1 text-xs">
+              <span>Views: {question.viewCount || 0}</span>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <Avatar className="h-6 w-6 border border-border">
-              <AvatarFallback className="text-xs bg-muted text-muted-foreground">{question.author.username.charAt(0).toUpperCase()}</AvatarFallback>
+              <AvatarImage src={getAvatarUrl(question.user?.avatarUrl)} />
+              <AvatarFallback className="text-xs bg-muted text-muted-foreground">
+                {(question.user?.username || question.author?.username || 'U').charAt(0).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
-            <span className="text-sm text-muted-foreground hover:text-foreground transition-colors">{question.author.username}</span>
+            <span className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              {question.user?.username || question.author?.username || 'Unknown'}
+            </span>
           </div>
         </div>
       </CardContent>
