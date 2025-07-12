@@ -1036,6 +1036,46 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
   }'
 ```
 
+**Content Moderation:**
+
+```bash
+# Check moderation service health
+curl http://localhost:8080/api/moderation/health
+
+# Moderate text content
+curl -X POST http://localhost:8080/api/moderation/text \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "How do I implement a binary search tree?",
+    "content_type": "question"
+  }'
+
+# Moderate image by URL
+curl -X POST http://localhost:8080/api/moderation/image \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_url": "https://example.com/image.jpg"
+  }'
+
+# Batch moderation (text + image)
+curl -X POST http://localhost:8080/api/moderation/batch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text_content": "Test message with image",
+    "image_url": "https://example.com/image.jpg"
+  }'
+
+# Test content creation with moderation (will be blocked if inappropriate)
+curl -X POST "http://localhost:8080/api/questions?userId=1" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Test Question",
+    "description": "This is a test question with potentially inappropriate content",
+    "tags": ["test"],
+    "imageUrls": []
+  }'
+```
+
 ### 10.2 Using Postman
 
 1. Import the collection (if available)
@@ -1053,6 +1093,7 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 - No WebSocket real-time updates
 - No voting system implementation
 - No notification system
+- Content moderation requires external service to be running
 
 ### 11.2 Future Enhancements
 
@@ -1064,7 +1105,10 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 - Add notification system
 - Add user profile management
 - Add question/answer editing
-- Add moderation features
+- ✅ Content moderation (implemented)
+- Add moderation analytics and reporting
+- Add user appeals for blocked content
+- Add custom moderation rules per community
 
 ### 11.3 Security Considerations
 
@@ -1072,6 +1116,8 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 - No rate limiting implemented
 - No input validation beyond basic requirements
 - CORS is set to allow all origins (`*`)
+- Content moderation provides protection against inappropriate content
+- Moderation service fallback allows content if service is unavailable
 
 ---
 
@@ -1175,7 +1221,210 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 
 ---
 
-## 13. CORS & ngrok Notes
+## 13. Content Moderation Endpoints
+
+The StackIt platform includes AI-powered content moderation that automatically screens all user-generated content (questions, answers, comments, and images) before publication.
+
+### 13.1 Moderation Service Health Check
+
+**GET** `/moderation/health`
+
+Check if the content moderation service is healthy and available.
+
+**Response (Success - 200):**
+
+```json
+{
+  "status": "healthy",
+  "service": "content_moderation",
+  "backend_connected": true
+}
+```
+
+**Response (Service Unavailable - 200):**
+
+```json
+{
+  "status": "unhealthy",
+  "service": "content_moderation",
+  "backend_connected": false
+}
+```
+
+### 13.2 Moderate Text Content
+
+**POST** `/moderation/text`
+
+Moderate text content using AI models and pattern matching.
+
+**Request Body:**
+
+```json
+{
+  "content": "Text content to moderate",
+  "content_type": "question"
+}
+```
+
+**Content Types:**
+
+- `question` - Question title and description
+- `answer` - Answer description
+- `comment` - Comment text
+- `text` - Generic text content
+
+**Response (Success - 200):**
+
+```json
+{
+  "is_appropriate": true,
+  "confidence": 0.92,
+  "categories": {
+    "normal": 0.92,
+    "safe": 0.95
+  },
+  "flagged_reasons": [],
+  "moderation_action": "allow"
+}
+```
+
+**Response (Content Blocked - 200):**
+
+```json
+{
+  "is_appropriate": false,
+  "confidence": 0.85,
+  "categories": {
+    "profanity": 0.85,
+    "inappropriate": 0.78
+  },
+  "flagged_reasons": ["profanity", "inappropriate language"],
+  "moderation_action": "block"
+}
+```
+
+### 13.3 Moderate Image by URL
+
+**POST** `/moderation/image`
+
+Moderate image content using computer vision techniques.
+
+**Request Body:**
+
+```json
+{
+  "image_url": "https://example.com/image.jpg"
+}
+```
+
+**Response (Success - 200):**
+
+```json
+{
+  "is_appropriate": true,
+  "confidence": 0.88,
+  "categories": {
+    "normal": 0.88,
+    "safe": 0.92
+  },
+  "flagged_reasons": [],
+  "moderation_action": "allow"
+}
+```
+
+**Response (Image Blocked - 200):**
+
+```json
+{
+  "is_appropriate": false,
+  "confidence": 0.76,
+  "categories": {
+    "nsfw": 0.76,
+    "inappropriate": 0.82
+  },
+  "flagged_reasons": ["nsfw content", "inappropriate imagery"],
+  "moderation_action": "block"
+}
+```
+
+### 13.4 Batch Moderation
+
+**POST** `/moderation/batch`
+
+Moderate both text and images in a single request.
+
+**Request Body:**
+
+```json
+{
+  "text_content": "Text content to moderate",
+  "image_url": "https://example.com/image.jpg"
+}
+```
+
+**Response (Success - 200):**
+
+```json
+{
+  "results": {
+    "text": {
+      "is_appropriate": true,
+      "confidence": 0.92,
+      "categories": { "normal": 0.92 },
+      "flagged_reasons": [],
+      "moderation_action": "allow"
+    },
+    "image": {
+      "is_appropriate": true,
+      "confidence": 0.88,
+      "categories": { "normal": 0.88 },
+      "flagged_reasons": [],
+      "moderation_action": "allow"
+    }
+  },
+  "overall_decision": "allow"
+}
+```
+
+### 13.5 Content Moderation Error Responses
+
+When content is blocked during creation/update operations, the API returns a 403 Forbidden status with detailed information:
+
+**Response (Content Blocked - 403):**
+
+```json
+{
+  "error": "Question content violates community guidelines: profanity detected",
+  "type": "content_moderation",
+  "contentType": "question",
+  "moderationAction": "block",
+  "status": "blocked"
+}
+```
+
+### 13.6 Moderation Actions
+
+The moderation service can take three actions:
+
+| Action  | Description                | HTTP Status           |
+| ------- | -------------------------- | --------------------- |
+| `allow` | Content is appropriate     | 200 OK                |
+| `flag`  | Content should be reviewed | 200 OK (with warning) |
+| `block` | Content should be rejected | 403 Forbidden         |
+
+### 13.7 Automatic Content Moderation
+
+All content creation and update endpoints automatically include moderation:
+
+- **Questions**: Title + description and images are moderated
+- **Answers**: Description and images are moderated
+- **Comments**: Comment text and images are moderated
+
+If the moderation service is unavailable, content is automatically allowed to prevent service disruption.
+
+---
+
+## 14. CORS & ngrok Notes
 
 - If using ngrok, set your backend CORS config to allow your ngrok URL (e.g., `https://abc12345.ngrok-free.app`).
 - All API endpoints are under `/api` (e.g., `/api/questions`).
@@ -1183,7 +1432,7 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 
 ---
 
-## 14. Quick Start for Frontend
+## 15. Quick Start for Frontend
 
 1. **Start the backend server:**
 
@@ -1211,6 +1460,20 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
      }'
    ```
 
-4. **Start building your frontend!**
+4. **Test content moderation (optional):**
+
+   ```bash
+   # Check if moderation service is running
+   curl http://localhost:8080/api/moderation/health
+
+   # Test text moderation
+   curl -X POST http://localhost:8080/api/moderation/text \
+     -H "Content-Type: application/json" \
+     -d '{"content": "Test message", "content_type": "question"}'
+   ```
+
+5. **Start building your frontend!**
 
 The API is ready to use with the endpoints documented above. Remember to handle errors appropriately and implement proper loading states in your frontend application.
+
+**Note**: Content moderation is automatically applied to all user-generated content. If the moderation service is not running, content will be allowed automatically to prevent service disruption.

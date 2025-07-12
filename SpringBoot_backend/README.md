@@ -13,6 +13,7 @@ A minimal question-and-answer platform supporting collaborative learning and str
 - **Voting System** - Upvote/downvote answers
 - **Real-time Notifications** - WebSocket-based notifications for user interactions
 - **Mobile Support** - API designed for mobile app integration
+- **Content Moderation** - AI-powered content screening for questions, answers, comments, and images
 
 ### User Roles
 
@@ -28,6 +29,7 @@ A minimal question-and-answer platform supporting collaborative learning and str
 - **Database**: PostgreSQL
 - **Authentication**: JWT tokens
 - **Real-time**: WebSocket
+- **Content Moderation**: AI-powered external service
 - **Build Tool**: Gradle
 
 ### System Architecture
@@ -55,6 +57,7 @@ A minimal question-and-answer platform supporting collaborative learning and str
 - Java 17 or higher
 - PostgreSQL 12 or higher
 - Gradle 7.0 or higher
+- Content Moderation Service (optional - see setup instructions)
 
 ## 🛠️ Setup Instructions
 
@@ -96,7 +99,36 @@ A minimal question-and-answer platform supporting collaborative learning and str
    psql -U postgres -d stackit_db -f database/schema.sql
    ```
 
-### 2. Backend Setup
+### 2. Content Moderation Service (Optional)
+
+The platform includes AI-powered content moderation. To enable it:
+
+1. **Start the Moderation Service**
+
+   ```bash
+   # The moderation service should be running on http://localhost:8000
+   # See the moderation service documentation for setup instructions
+   ```
+
+2. **Configure Moderation**
+   Edit `backend/src/main/resources/application.properties`:
+
+   ```properties
+   # Content Moderation Configuration
+   moderation.api.base-url=http://localhost:8000
+   moderation.api.enabled=true
+   moderation.api.timeout=30000
+   ```
+
+3. **Test Moderation**
+   ```bash
+   # Run the test script
+   python test_moderation_integration.py
+   ```
+
+**Note**: If the moderation service is not available, content will be allowed automatically to prevent service disruption.
+
+### 3. Backend Setup
 
 1. **Clone the Repository**
 
@@ -125,7 +157,7 @@ A minimal question-and-answer platform supporting collaborative learning and str
 
    The application will start on `http://localhost:8080`
 
-### 3. API Testing
+### 4. API Testing
 
 You can test the API using tools like Postman or curl:
 
@@ -168,6 +200,36 @@ curl -X POST http://localhost:8080/api/questions?userId=1 \
 
 # Get question by ID
 curl http://localhost:8080/api/questions/1
+```
+
+#### Content Moderation
+
+```bash
+# Check moderation service health
+curl http://localhost:8080/api/moderation/health
+
+# Moderate text content
+curl -X POST http://localhost:8080/api/moderation/text \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "How do I implement a binary search tree?",
+    "content_type": "question"
+  }'
+
+# Moderate image by URL
+curl -X POST http://localhost:8080/api/moderation/image \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_url": "https://example.com/image.jpg"
+  }'
+
+# Batch moderation (text + image)
+curl -X POST http://localhost:8080/api/moderation/batch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text_content": "Test message",
+    "image_url": "https://example.com/image.jpg"
+  }'
 ```
 
 ## 📱 Mobile Integration

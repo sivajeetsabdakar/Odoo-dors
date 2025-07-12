@@ -8,6 +8,8 @@ import com.stackit.backend.entity.User;
 import com.stackit.backend.repository.QuestionRepository;
 import com.stackit.backend.repository.TagRepository;
 import com.stackit.backend.repository.UserRepository;
+import com.stackit.backend.exception.ContentModerationException;
+import com.stackit.backend.dto.ModerationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,9 +37,45 @@ public class QuestionService {
     @Autowired
     private ImageService imageService;
 
+    @Autowired
+    private ContentModerationService contentModerationService;
+
     public QuestionDto createQuestion(CreateQuestionRequest request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Moderate text content
+        String textContent = request.getTitle() + " " + request.getDescription();
+        ModerationDto.ModerationResponse textModeration = contentModerationService.moderateText(textContent,
+                "question");
+
+        if (contentModerationService.isContentBlocked(textModeration)) {
+            throw new ContentModerationException(
+                    "Question content violates community guidelines: "
+                            + String.join(", ", textModeration.getFlaggedReasons()),
+                    textContent,
+                    "question",
+                    textModeration.getModerationAction());
+        }
+
+        // Moderate images if present
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            List<String> imageUrlsList = new java.util.ArrayList<>(request.getImageUrls());
+            List<ModerationDto.ModerationResponse> imageModerations = contentModerationService
+                    .moderateImages(imageUrlsList);
+
+            for (int i = 0; i < imageModerations.size(); i++) {
+                ModerationDto.ModerationResponse imageModeration = imageModerations.get(i);
+                if (contentModerationService.isContentBlocked(imageModeration)) {
+                    throw new ContentModerationException(
+                            "Question image violates community guidelines: "
+                                    + String.join(", ", imageModeration.getFlaggedReasons()),
+                            imageUrlsList.get(i),
+                            "image",
+                            imageModeration.getModerationAction());
+                }
+            }
+        }
 
         Question question = new Question();
         question.setUser(user);
@@ -130,6 +168,40 @@ public class QuestionService {
         if (!question.getUser().getId().equals(userId)) {
             throw new RuntimeException("Only the question owner can update the question");
         }
+
+        // Moderate text content
+        String textContent = request.getTitle() + " " + request.getDescription();
+        ModerationDto.ModerationResponse textModeration = contentModerationService.moderateText(textContent,
+                "question");
+
+        if (contentModerationService.isContentBlocked(textModeration)) {
+            throw new ContentModerationException(
+                    "Updated question content violates community guidelines: "
+                            + String.join(", ", textModeration.getFlaggedReasons()),
+                    textContent,
+                    "question",
+                    textModeration.getModerationAction());
+        }
+
+        // Moderate images if present
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            List<String> imageUrlsList = new java.util.ArrayList<>(request.getImageUrls());
+            List<ModerationDto.ModerationResponse> imageModerations = contentModerationService
+                    .moderateImages(imageUrlsList);
+
+            for (int i = 0; i < imageModerations.size(); i++) {
+                ModerationDto.ModerationResponse imageModeration = imageModerations.get(i);
+                if (contentModerationService.isContentBlocked(imageModeration)) {
+                    throw new ContentModerationException(
+                            "Updated question image violates community guidelines: "
+                                    + String.join(", ", imageModeration.getFlaggedReasons()),
+                            imageUrlsList.get(i),
+                            "image",
+                            imageModeration.getModerationAction());
+                }
+            }
+        }
+
         question.setTitle(request.getTitle());
         question.setDescription(request.getDescription());
         // Handle image URLs
