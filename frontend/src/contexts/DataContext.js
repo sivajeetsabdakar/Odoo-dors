@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
+import { questionsApi, answersApi, commentsApi, tagsApi } from '@/lib/api';
 
 const DataContext = createContext();
 
@@ -12,121 +13,302 @@ export const useData = () => {
   return context;
 };
 
-// Mock data
-const initialQuestions = [
-  {
-    id: '1',
-    title: 'How to center a div in CSS?',
-    description: '<p>I\'ve been struggling with centering a div element. What are the best practices in 2024?</p>',
-    author: { id: '2', username: 'john_doe' },
-    tags: ['css', 'html', 'frontend'],
-    createdAt: new Date('2024-01-15'),
-    answers: [],
-    upvotes: 5
-  },
-  {
-    id: '2',
-    title: 'React state management best practices',
-    description: '<p>What are the current best practices for state management in React applications? Should I use Context API or Redux?</p>',
-    author: { id: '2', username: 'john_doe' },
-    tags: ['react', 'javascript', 'state-management'],
-    createdAt: new Date('2024-01-14'),
-    answers: [],
-    upvotes: 12
-  },
-  {
-    id: '3',
-    title: 'Next.js vs React - When to use which?',
-    description: '<p>I\'m confused about when to use Next.js vs plain React. Can someone explain the differences and use cases?</p>',
-    author: { id: '1', username: 'admin' },
-    tags: ['nextjs', 'react', 'framework'],
-    createdAt: new Date('2024-01-13'),
-    answers: [],
-    upvotes: 8
-  }
-];
-
-const initialAnswers = [
-  {
-    id: '1',
-    questionId: '1',
-    content: '<p>You can use Flexbox for this! Just use <code>display: flex; justify-content: center; align-items: center;</code> on the parent container.</p>',
-    author: { id: '1', username: 'admin' },
-    createdAt: new Date('2024-01-15'),
-    upvotes: 3,
-    isAccepted: true
-  }
-];
-
 export const DataProvider = ({ children }) => {
-  const [questions, setQuestions] = useState(initialQuestions);
-  const [answers, setAnswers] = useState(initialAnswers);
-  const [notifications, setNotifications] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const addQuestion = (questionData) => {
-    const newQuestion = {
-      id: Date.now().toString(),
-      ...questionData,
-      createdAt: new Date(),
-      answers: [],
-      upvotes: 0
-    };
-    setQuestions(prev => [newQuestion, ...prev]);
-    return newQuestion;
-  };
-
-  const addAnswer = (questionId, answerData) => {
-    const newAnswer = {
-      id: Date.now().toString(),
-      questionId,
-      ...answerData,
-      createdAt: new Date(),
-      upvotes: 0,
-      isAccepted: false
-    };
-    setAnswers(prev => [...prev, newAnswer]);
-    
-    // Add notification to question author
-    const question = questions.find(q => q.id === questionId);
-    if (question) {
-      const notification = {
-        id: Date.now().toString(),
-        userId: question.author.id,
-        type: 'answer',
-        message: `${answerData.author.username} answered your question "${question.title}"`,
-        read: false,
-        createdAt: new Date()
-      };
-      setNotifications(prev => [...prev, notification]);
+  // Questions methods
+  const fetchQuestions = async (page = 0, size = 10) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await questionsApi.getAllQuestions(page, size);
+      setQuestions(response.content || response);
+      return response;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error fetching questions:', error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
-    
-    return newAnswer;
   };
 
-  const upvoteAnswer = (answerId, userId) => {
-    setAnswers(prev => prev.map(answer => 
-      answer.id === answerId 
-        ? { ...answer, upvotes: answer.upvotes + 1 }
-        : answer
-    ));
+  const fetchQuestionById = async (id) => {
+    try {
+      setError(null);
+      const question = await questionsApi.getQuestionById(id);
+      return question;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error fetching question:', error);
+      throw error;
+    }
   };
 
-  const acceptAnswer = (answerId) => {
-    setAnswers(prev => prev.map(answer => 
-      answer.id === answerId 
-        ? { ...answer, isAccepted: true }
-        : { ...answer, isAccepted: false }
-    ));
+  const createQuestion = async (questionData, userId) => {
+    try {
+      setError(null);
+      const newQuestion = await questionsApi.createQuestion(questionData, userId);
+      setQuestions(prev => [newQuestion, ...prev]);
+      return newQuestion;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error creating question:', error);
+      throw error;
+    }
   };
 
-  const markNotificationAsRead = (notificationId) => {
-    setNotifications(prev => prev.map(notif => 
-      notif.id === notificationId 
-        ? { ...notif, read: true }
-        : notif
-    ));
+  const updateQuestion = async (id, questionData, userId) => {
+    try {
+      setError(null);
+      await questionsApi.updateQuestion(id, questionData, userId);
+      // Refresh questions list or update specific question
+      await fetchQuestions();
+      return true;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error updating question:', error);
+      throw error;
+    }
   };
 
+  const deleteQuestion = async (id, userId) => {
+    try {
+      setError(null);
+      await questionsApi.deleteQuestion(id, userId);
+      setQuestions(prev => prev.filter(q => q.id !== id));
+      return true;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error deleting question:', error);
+      throw error;
+    }
+  };
+
+  const voteOnQuestion = async (id, vote, userId) => {
+    try {
+      setError(null);
+      const response = await questionsApi.voteOnQuestion(id, vote, userId);
+      // Update local state with new vote count
+      setQuestions(prev => prev.map(q => 
+        q.id === id ? { ...q, voteCount: response.voteCount } : q
+      ));
+      return response;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error voting on question:', error);
+      throw error;
+    }
+  };
+
+  const searchQuestions = async (query, page = 0, size = 10) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await questionsApi.searchQuestions(query, page, size);
+      return response;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error searching questions:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getQuestionsByTag = async (tagName) => {
+    try {
+      setError(null);
+      const questions = await questionsApi.getQuestionsByTag(tagName);
+      return questions;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error fetching questions by tag:', error);
+      throw error;
+    }
+  };
+
+  const getQuestionsByUser = async (userId) => {
+    try {
+      setError(null);
+      const questions = await questionsApi.getQuestionsByUser(userId);
+      return questions;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error fetching user questions:', error);
+      throw error;
+    }
+  };
+
+  // Answers methods
+  const fetchAnswersByQuestion = async (questionId) => {
+    try {
+      setError(null);
+      const answers = await answersApi.getAnswersByQuestion(questionId);
+      setAnswers(prev => {
+        const filtered = prev.filter(a => a.questionId !== questionId);
+        return [...filtered, ...answers.map(a => ({ ...a, questionId }))];
+      });
+      return answers;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error fetching answers:', error);
+      throw error;
+    }
+  };
+
+  const createAnswer = async (questionId, answerData, userId) => {
+    try {
+      setError(null);
+      const newAnswer = await answersApi.createAnswer(questionId, answerData, userId);
+      setAnswers(prev => [...prev, { ...newAnswer, questionId }]);
+      return newAnswer;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error creating answer:', error);
+      throw error;
+    }
+  };
+
+  const updateAnswer = async (id, answerData, userId) => {
+    try {
+      setError(null);
+      await answersApi.updateAnswer(id, answerData, userId);
+      return true;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error updating answer:', error);
+      throw error;
+    }
+  };
+
+  const deleteAnswer = async (id, userId) => {
+    try {
+      setError(null);
+      await answersApi.deleteAnswer(id, userId);
+      setAnswers(prev => prev.filter(a => a.id !== id));
+      return true;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error deleting answer:', error);
+      throw error;
+    }
+  };
+
+  const voteOnAnswer = async (id, vote, userId) => {
+    try {
+      setError(null);
+      const response = await answersApi.voteOnAnswer(id, vote, userId);
+      setAnswers(prev => prev.map(a => 
+        a.id === id ? { ...a, voteCount: response.voteCount } : a
+      ));
+      return response;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error voting on answer:', error);
+      throw error;
+    }
+  };
+
+  // Comments methods
+  const fetchCommentsByAnswer = async (answerId) => {
+    try {
+      setError(null);
+      const comments = await commentsApi.getCommentsByAnswer(answerId);
+      setComments(prev => {
+        const filtered = prev.filter(c => c.answerId !== answerId);
+        return [...filtered, ...comments.map(c => ({ ...c, answerId }))];
+      });
+      return comments;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error fetching comments:', error);
+      throw error;
+    }
+  };
+
+  const createComment = async (answerId, commentData, userId) => {
+    try {
+      setError(null);
+      const newComment = await commentsApi.createComment(answerId, commentData, userId);
+      setComments(prev => [...prev, { ...newComment, answerId }]);
+      return newComment;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error creating comment:', error);
+      throw error;
+    }
+  };
+
+  const updateComment = async (id, commentData, userId) => {
+    try {
+      setError(null);
+      await commentsApi.updateComment(id, commentData, userId);
+      return true;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error updating comment:', error);
+      throw error;
+    }
+  };
+
+  const deleteComment = async (id, userId) => {
+    try {
+      setError(null);
+      await commentsApi.deleteComment(id, userId);
+      setComments(prev => prev.filter(c => c.id !== id));
+      return true;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error deleting comment:', error);
+      throw error;
+    }
+  };
+
+  // Tags methods
+  const fetchAllTags = async () => {
+    try {
+      setError(null);
+      const tags = await tagsApi.getAllTags();
+      setTags(tags);
+      return tags;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error fetching tags:', error);
+      throw error;
+    }
+  };
+
+  const searchTags = async (query) => {
+    try {
+      setError(null);
+      const tags = await tagsApi.searchTags(query);
+      return tags;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error searching tags:', error);
+      throw error;
+    }
+  };
+
+  const getPopularTags = async () => {
+    try {
+      setError(null);
+      const tags = await tagsApi.getPopularTags();
+      return tags;
+    } catch (error) {
+      setError(error.message);
+      console.error('Error fetching popular tags:', error);
+      throw error;
+    }
+  };
+
+  // Helper methods for backward compatibility
   const getQuestionById = (id) => {
     return questions.find(q => q.id === id);
   };
@@ -135,22 +317,52 @@ export const DataProvider = ({ children }) => {
     return answers.filter(a => a.questionId === questionId);
   };
 
-  const getUserNotifications = (userId) => {
-    return notifications.filter(n => n.userId === userId);
+  const getCommentsByAnswerId = (answerId) => {
+    return comments.filter(c => c.answerId === answerId);
   };
 
   const value = {
+    // State
     questions,
     answers,
-    notifications,
-    addQuestion,
-    addAnswer,
-    upvoteAnswer,
-    acceptAnswer,
-    markNotificationAsRead,
+    comments,
+    tags,
+    loading,
+    error,
+    
+    // Questions methods
+    fetchQuestions,
+    fetchQuestionById,
+    createQuestion,
+    updateQuestion,
+    deleteQuestion,
+    voteOnQuestion,
+    searchQuestions,
+    getQuestionsByTag,
+    getQuestionsByUser,
+    
+    // Answers methods
+    fetchAnswersByQuestion,
+    createAnswer,
+    updateAnswer,
+    deleteAnswer,
+    voteOnAnswer,
+    
+    // Comments methods
+    fetchCommentsByAnswer,
+    createComment,
+    updateComment,
+    deleteComment,
+    
+    // Tags methods
+    fetchAllTags,
+    searchTags,
+    getPopularTags,
+    
+    // Helper methods
     getQuestionById,
     getAnswersByQuestionId,
-    getUserNotifications
+    getCommentsByAnswerId,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

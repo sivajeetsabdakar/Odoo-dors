@@ -37,7 +37,13 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      await signup(email, password, username)
+      const userData = {
+        username,
+        email,
+        password,
+        confirmPassword
+      };
+      await signup(userData)
     } catch (err) {
       setError(err.message)
     } finally {

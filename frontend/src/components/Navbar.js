@@ -5,12 +5,19 @@ import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Menu, X } from "lucide-react"
+import { fileUploadApi } from "@/lib/api"
 
 export default function Navbar() {
   const { user, logout } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const getAvatarUrl = (avatarUrl) => {
+    if (!avatarUrl) return null
+    if (avatarUrl.startsWith('http')) return avatarUrl
+    return fileUploadApi.getFileUrl(avatarUrl)
+  }
 
   return (
     <nav className="bg-card/95 border-b border-border sticky top-0 z-50 backdrop-blur-md shadow-lg">
@@ -42,22 +49,14 @@ export default function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="relative hover:bg-accent/20 transition-colors">
                       <Bell className="h-5 w-5" />
-                      <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-lg">
-                        3
-                      </span>
+                      {/* Note: Notification count would come from API in real implementation */}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-80 bg-popover border-border shadow-xl">
                     <DropdownMenuItem className="hover:bg-accent/20">
                       <div className="flex flex-col">
-                        <span className="font-medium text-foreground">Someone answered your question</span>
-                        <span className="text-sm text-muted-foreground">2 hours ago</span>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-accent/20">
-                      <div className="flex flex-col">
-                        <span className="font-medium text-foreground">Your answer was upvoted</span>
-                        <span className="text-sm text-muted-foreground">1 day ago</span>
+                        <span className="font-medium text-foreground">No new notifications</span>
+                        <span className="text-sm text-muted-foreground">Check back later</span>
                       </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -68,6 +67,7 @@ export default function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-accent/20">
                       <Avatar className="h-8 w-8 border-2 border-primary/20">
+                        <AvatarImage src={getAvatarUrl(user.avatarUrl)} />
                         <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                           {user.username.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -78,7 +78,7 @@ export default function Navbar() {
                     <DropdownMenuItem asChild className="hover:bg-accent/20">
                       <Link href="/profile" className="cursor-pointer">Profile</Link>
                     </DropdownMenuItem>
-                    {user.role === "admin" && (
+                    {(user.role === "ADMIN" || user.role === "admin") && (
                       <DropdownMenuItem asChild className="hover:bg-accent/20">
                         <Link href="/admin" className="cursor-pointer">Admin Dashboard</Link>
                       </DropdownMenuItem>
@@ -127,7 +127,7 @@ export default function Navbar() {
                 >
                   Profile
                 </Link>
-                {user.role === "admin" && (
+                {(user.role === "ADMIN" || user.role === "admin") && (
                   <Link
                     href="/admin"
                     className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md transition-colors"

@@ -7,56 +7,66 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import QuestionCard from "@/components/QuestionCard"
 import GradientCircleBackground from "@/components/GradientCircleBackground"
 import { Search } from "lucide-react"
-
-// Mock data - replace with real API calls
-const mockQuestions = [
-  {
-    id: "1",
-    title: "How to implement authentication in Next.js 14?",
-    tags: ["nextjs", "authentication", "react"],
-    votes: 15,
-    answerCount: 3,
-    createdAt: "2024-01-15T10:30:00Z",
-    author: { username: "developer123" },
-  },
-  {
-    id: "2",
-    title: "Best practices for state management in React applications",
-    tags: ["react", "state-management", "redux"],
-    votes: 8,
-    answerCount: 2,
-    createdAt: "2024-01-14T15:45:00Z",
-    author: { username: "reactpro" },
-  },
-  {
-    id: "3",
-    title: "How to optimize database queries in PostgreSQL?",
-    tags: ["postgresql", "database", "performance"],
-    votes: 12,
-    answerCount: 5,
-    createdAt: "2024-01-13T09:20:00Z",
-    author: { username: "dbexpert" },
-  },
-]
+import { useData } from "@/contexts/DataContext"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function HomePage() {
-  const [questions, setQuestions] = useState([])
+  const { questions, loading, error, fetchQuestions, searchQuestions } = useData()
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("newest")
-  const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [pageSize] = useState(10)
+  const [totalPages, setTotalPages] = useState(0)
+  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setQuestions(mockQuestions)
-      setLoading(false)
-    }, 1000)
-  }, [])
+    loadQuestions()
+  }, [currentPage])
+
+  const loadQuestions = async () => {
+    try {
+      const response = await fetchQuestions(currentPage, pageSize)
+      if (response.totalPages) {
+        setTotalPages(response.totalPages)
+      }
+    } catch (error) {
+      console.error('Error loading questions:', error)
+    }
+  }
+
+  const handleSearch = async () => {
+    if (searchTerm.trim()) {
+      setIsSearching(true)
+      try {
+        await searchQuestions(searchTerm, 0, pageSize)
+        setCurrentPage(0)
+      } catch (error) {
+        console.error('Error searching questions:', error)
+      } finally {
+        setIsSearching(false)
+      }
+    } else {
+      loadQuestions()
+    }
+  }
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value)
+    if (e.target.value === '') {
+      loadQuestions()
+    }
+  }
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
 
   const filteredQuestions = questions.filter(
     (question) =>
       question.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      question.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())),
+      (question.tags && question.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())))
   )
 
   const sortedQuestions = [...filteredQuestions].sort((a, b) => {
@@ -64,9 +74,9 @@ export default function HomePage() {
       case "newest":
         return new Date(b.createdAt) - new Date(a.createdAt)
       case "votes":
-        return b.votes - a.votes
+        return (b.voteCount || 0) - (a.voteCount || 0)
       case "unanswered":
-        return a.answerCount - b.answerCount
+        return (a.answerCount || 0) - (b.answerCount || 0)
       default:
         return 0
     }
@@ -102,6 +112,13 @@ export default function HomePage() {
           <p className="text-muted-foreground text-lg">Find answers to your programming questions</p>
         </div>
 
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         {/* Search and Filters */}
         <div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border/50 shadow-lg mb-6">
           <div className="flex flex-col md:flex-row gap-4">
@@ -110,11 +127,19 @@ export default function HomePage() {
               <Input
                 placeholder="Search questions..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
+                onKeyPress={handleKeyPress}
                 className="pl-10 bg-input/50 border-border focus:ring-primary focus:border-primary transition-all"
               />
             </div>
             <div className="flex gap-2">
+              <Button 
+                onClick={handleSearch}
+                disabled={isSearching}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                {isSearching ? "Searching..." : "Search"}
+              </Button>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[180px] bg-input/50 border-border focus:ring-primary">
                   <SelectValue placeholder="Sort by" />
@@ -136,25 +161,53 @@ export default function HomePage() {
           ) : (
             <div className="text-center py-12 bg-card/30 rounded-xl border border-border/30 backdrop-blur-sm">
               <p className="text-muted-foreground text-lg mb-2">No questions found</p>
-              <p className="text-muted-foreground/70">Try adjusting your search terms</p>
+              <p className="text-muted-foreground/70">
+                {searchTerm ? "Try adjusting your search terms" : "Be the first to ask a question!"}
+              </p>
             </div>
           )}
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center mt-8">
-          <div className="flex space-x-2 bg-card/50 p-3 rounded-lg border border-border/50 backdrop-blur-sm">
-            <Button variant="outline" disabled className="border-border hover:bg-accent/20">
-              Previous
-            </Button>
-            <Button variant="default" className="bg-primary text-primary-foreground shadow-md">
-              1
-            </Button>
-            <Button variant="outline" className="border-border hover:bg-accent/20">2</Button>
-            <Button variant="outline" className="border-border hover:bg-accent/20">3</Button>
-            <Button variant="outline" className="border-border hover:bg-accent/20">Next</Button>
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
+            <div className="flex space-x-2 bg-card/50 p-3 rounded-lg border border-border/50 backdrop-blur-sm">
+              <Button 
+                variant="outline" 
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(currentPage - 1)}
+                className="border-border hover:bg-accent/20"
+              >
+                Previous
+              </Button>
+              {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                const pageNum = currentPage <= 2 ? i : currentPage - 2 + i;
+                if (pageNum >= totalPages) return null;
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={currentPage === pageNum 
+                      ? "bg-primary text-primary-foreground shadow-md" 
+                      : "border-border hover:bg-accent/20"
+                    }
+                  >
+                    {pageNum + 1}
+                  </Button>
+                );
+              })}
+              <Button 
+                variant="outline" 
+                disabled={currentPage >= totalPages - 1}
+                onClick={() => setCurrentPage(currentPage + 1)}
+                className="border-border hover:bg-accent/20"
+              >
+                Next
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
