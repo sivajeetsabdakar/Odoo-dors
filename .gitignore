@@ -65,3 +65,17 @@ documentation/
 AI_moderation_service/tests/
 AI_moderation_service/test_simple.py
 
+
+SpringBoot_backend\API_DOCUMENTATION.md
+SpringBoot_backend\CLOUDINARY_SETUP.md
+SpringBoot_backend\CONTENT_MODERATION_INTEGRATION.md
+SpringBoot_backend\DATABASE_SETUP_GUIDE.md
+SpringBoot_backend\IMAGE_UPLOAD_WORKFLOW.md
+SpringBoot_backend\IMAGE_URL_HANDLING_SUMMARY.md
+SpringBoot_backend\MYSQL_SETUP.md
+SpringBoot_backend\PROJECT_CONTEXT.md
+SpringBoot_backend\QUICK_MYSQL_SETUP.md
+SpringBoot_backend\QUICK_START.md
+SpringBoot_backend\backend
+frontend\CLOUDINARY_INTEGRATION.md
+frontend\INTEGRATION_SUMMARY.md
