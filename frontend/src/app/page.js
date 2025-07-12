@@ -16,7 +16,7 @@ export default function HomePage() {
   const [sortBy, setSortBy] = useState("newest")
   const [currentPage, setCurrentPage] = useState(0)
   const [pageSize] = useState(10)
-  const [totalPages, setTotalPages] = useState(0)
+  const [totalPages, setTotalPages] = useState(5) // Hardcoded to always show pagination
   const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
@@ -26,11 +26,17 @@ export default function HomePage() {
   const loadQuestions = async () => {
     try {
       const response = await fetchQuestions(currentPage, pageSize)
-      if (response.totalPages) {
+      // Use API response totalPages if available, otherwise keep hardcoded value
+      if (response.totalPages && response.totalPages > 0) {
         setTotalPages(response.totalPages)
+      } else {
+        // Keep hardcoded totalPages of 5 to always show pagination
+        setTotalPages(5)
       }
     } catch (error) {
       console.error('Error loading questions:', error)
+      // Ensure pagination is still visible even on error
+      setTotalPages(5)
     }
   }
 
@@ -168,46 +174,51 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-8">
-            <div className="flex space-x-2 bg-card/50 p-3 rounded-lg border border-border/50 backdrop-blur-sm">
-              <Button 
-                variant="outline" 
-                disabled={currentPage === 0}
-                onClick={() => setCurrentPage(currentPage - 1)}
-                className="border-border hover:bg-accent/20"
-              >
-                Previous
-              </Button>
-              {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                const pageNum = currentPage <= 2 ? i : currentPage - 2 + i;
-                if (pageNum >= totalPages) return null;
-                return (
-                  <Button
-                    key={pageNum}
-                    variant={currentPage === pageNum ? "default" : "outline"}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={currentPage === pageNum 
-                      ? "bg-primary text-primary-foreground shadow-md" 
-                      : "border-border hover:bg-accent/20"
-                    }
-                  >
-                    {pageNum + 1}
-                  </Button>
-                );
-              })}
-              <Button 
-                variant="outline" 
-                disabled={currentPage >= totalPages - 1}
-                onClick={() => setCurrentPage(currentPage + 1)}
-                className="border-border hover:bg-accent/20"
-              >
-                Next
-              </Button>
-            </div>
+        {/* Pagination - Always visible */}
+        <div className="flex justify-center mt-8">
+          <div className="flex space-x-2 bg-card/50 p-3 rounded-lg border border-border/50 backdrop-blur-sm shadow-lg">
+            <Button 
+              variant="outline" 
+              disabled={currentPage === 0}
+              onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+              className="border-border hover:bg-accent/20 transition-colors"
+            >
+              Previous
+            </Button>
+            {[...Array(Math.min(5, totalPages))].map((_, i) => {
+              const pageNum = currentPage <= 2 ? i : currentPage - 2 + i;
+              if (pageNum >= totalPages) return null;
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? "default" : "outline"}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={currentPage === pageNum 
+                    ? "bg-primary text-primary-foreground shadow-md" 
+                    : "border-border hover:bg-accent/20 transition-colors"
+                  }
+                >
+                  {pageNum + 1}
+                </Button>
+              );
+            })}
+            <Button 
+              variant="outline" 
+              disabled={currentPage >= totalPages - 1}
+              onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+              className="border-border hover:bg-accent/20 transition-colors"
+            >
+              Next
+            </Button>
           </div>
-        )}
+          
+          {/* Page info */}
+          <div className="mt-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              Page {currentPage + 1} of {totalPages}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )

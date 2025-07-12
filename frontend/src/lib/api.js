@@ -382,6 +382,56 @@ export const fileUploadApi = {
     },
 };
 
+// Admin API for getting all content
+export const adminApi = {
+    getAllAnswers: async (page = 0, size = 100) => {
+        const queryParams = buildQueryParams({ page, size });
+        const response = await fetch(`${API_BASE_URL}/admin/answers?${queryParams}`, {
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        });
+        return handleApiResponse(response);
+    },
+
+    getAllQuestions: async (page = 0, size = 100) => {
+        const queryParams = buildQueryParams({ page, size });
+        const response = await fetch(`${API_BASE_URL}/admin/questions?${queryParams}`, {
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        });
+        return handleApiResponse(response);
+    },
+
+    // Content moderation endpoints
+    approveContent: async (contentId, contentType) => {
+        const response = await fetch(`${API_BASE_URL}/admin/content/${contentType}/${contentId}/approve`, {
+            method: 'POST',
+            headers: getDefaultHeaders(),
+        });
+        return handleApiResponse(response);
+    },
+
+    flagContent: async (contentId, contentType, reason = '') => {
+        const response = await fetch(`${API_BASE_URL}/admin/content/${contentType}/${contentId}/flag`, {
+            method: 'POST',
+            headers: getDefaultHeaders(),
+            body: JSON.stringify({ reason }),
+        });
+        return handleApiResponse(response);
+    },
+
+    blockContent: async (contentId, contentType, reason = '') => {
+        const response = await fetch(`${API_BASE_URL}/admin/content/${contentType}/${contentId}/block`, {
+            method: 'POST',
+            headers: getDefaultHeaders(),
+            body: JSON.stringify({ reason }),
+        });
+        return handleApiResponse(response);
+    },
+};
+
 export default {
     authApi,
     questionsApi,
@@ -390,4 +440,5 @@ export default {
     usersApi,
     tagsApi,
     fileUploadApi,
+    adminApi,
 };
