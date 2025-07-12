@@ -20,18 +20,18 @@ Add these properties to `application.properties`:
 
 ```properties
 # Content Moderation Configuration
-moderation.api.base-url=http://localhost:8000
+moderation.api.base-url=https://d1946e5cd06f.ngrok-free.app
 moderation.api.enabled=true
 moderation.api.timeout=30000
 ```
 
 ### Configuration Options
 
-| Property                  | Default                 | Description                          |
-| ------------------------- | ----------------------- | ------------------------------------ |
-| `moderation.api.base-url` | `http://localhost:8000` | Base URL of the moderation service   |
-| `moderation.api.enabled`  | `true`                  | Enable/disable content moderation    |
-| `moderation.api.timeout`  | `30000`                 | Timeout for API calls (milliseconds) |
+| Property                  | Default                               | Description                          |
+| ------------------------- | ------------------------------------- | ------------------------------------ |
+| `moderation.api.base-url` | `https://d1946e5cd06f.ngrok-free.app` | Base URL of the moderation service   |
+| `moderation.api.enabled`  | `true`                                | Enable/disable content moderation    |
+| `moderation.api.timeout`  | `30000`                               | Timeout for API calls (milliseconds) |
 
 ## Integration Points
 

@@ -1476,4 +1476,4 @@ If the moderation service is unavailable, content is automatically allowed to pr
 
 The API is ready to use with the endpoints documented above. Remember to handle errors appropriately and implement proper loading states in your frontend application.
 
-**Note**: Content moderation is automatically applied to all user-generated content. If the moderation service is not running, content will be allowed automatically to prevent service disruption.
+**Note**: Content moderation is automatically applied to all user-generated content. The moderation service is running on `https://d1946e5cd06f.ngrok-free.app`. If the moderation service is not available, content will be allowed automatically to prevent service disruption.

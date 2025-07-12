@@ -106,8 +106,8 @@ The platform includes AI-powered content moderation. To enable it:
 1. **Start the Moderation Service**
 
    ```bash
-   # The moderation service should be running on http://localhost:8000
-   # See the moderation service documentation for setup instructions
+   # The moderation service is running on https://d1946e5cd06f.ngrok-free.app
+   # The service is already configured and ready to use
    ```
 
 2. **Configure Moderation**
@@ -115,7 +115,7 @@ The platform includes AI-powered content moderation. To enable it:
 
    ```properties
    # Content Moderation Configuration
-   moderation.api.base-url=http://localhost:8000
+   moderation.api.base-url=https://d1946e5cd06f.ngrok-free.app
    moderation.api.enabled=true
    moderation.api.timeout=30000
    ```

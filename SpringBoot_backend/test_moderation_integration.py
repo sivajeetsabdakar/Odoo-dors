@@ -13,7 +13,7 @@ from typing import Dict, Any
 
 # Configuration
 BACKEND_URL = "http://localhost:8080"
-MODERATION_SERVICE_URL = "http://localhost:8000"
+MODERATION_SERVICE_URL = "https://d1946e5cd06f.ngrok-free.app"
 
 
 def test_moderation_service_health():
@@ -209,7 +209,7 @@ def main():
     # Check if services are running
     if not test_moderation_service_health():
         print("\n❌ Moderation service is not available. Please start it first.")
-        print("   Expected URL: http://localhost:8000")
+        print("   Expected URL: https://d1946e5cd06f.ngrok-free.app")
         sys.exit(1)
 
     if not test_backend_moderation_health():
