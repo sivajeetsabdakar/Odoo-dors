@@ -1,0 +1,740 @@
+{
+	"info": {
+		"_postman_id": "stackit-api-collection",
+		"name": "StackIt API Collection",
+		"description": "Complete API collection for StackIt Q&A Platform\n\nBase URL: {{baseUrl}}\n\nThis collection includes:\n- Authentication endpoints\n- Questions management\n- Answers and comments\n- File uploads\n- Tags management\n\nEnvironment Variables:\n- baseUrl: http://localhost:8080/api\n- userId: User ID for authenticated requests\n- questionId: Question ID for related operations\n- answerId: Answer ID for related operations",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\",\n  \"avatarUrl\": \"{{avatarUrl}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user with optional avatar URL"
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with email and password"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/me?userId={{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Get current user information"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication and user management endpoints"
+		},
+		{
+			"name": "Questions",
+			"item": [
+				{
+					"name": "Get All Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/questions?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get paginated list of all questions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Question by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/questions/{{questionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions",
+								"{{questionId}}"
+							]
+						},
+						"description": "Get a specific question by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"How to implement authentication?\",\n  \"description\": \"I need help with JWT authentication in my Spring Boot application...\",\n  \"tags\": [\"authentication\", \"jwt\", \"spring-boot\"],\n  \"imageUrls\": [\"{{questionImageUrl}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/questions?userId={{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Create a new question with optional images"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Questions by Tag",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/questions/tag/java",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions",
+								"tag",
+								"java"
+							]
+						},
+						"description": "Get questions filtered by tag"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/questions/search?q=authentication&page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "authentication"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Search questions by query term"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Questions by User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/questions/user/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions",
+								"user",
+								"{{userId}}"
+							]
+						},
+						"description": "Get all questions by a specific user"
+					},
+					"response": []
+				}
+			],
+			"description": "Question management endpoints"
+		},
+		{
+			"name": "Answers",
+			"item": [
+				{
+					"name": "Get Answers by Question",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/questions/{{questionId}}/answers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions",
+								"{{questionId}}",
+								"answers"
+							]
+						},
+						"description": "Get all answers for a specific question"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Answer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"You can use Spring Security with JWT tokens. Here's how...\",\n  \"imageUrls\": [\"{{answerImageUrl}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/questions/{{questionId}}/answers?userId={{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions",
+								"{{questionId}}",
+								"answers"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Create a new answer for a question"
+					},
+					"response": []
+				},
+				{
+					"name": "Accept Answer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answers/{{answerId}}/accept?userId={{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers",
+								"{{answerId}}",
+								"accept"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Mark an answer as accepted (only question owner can do this)"
+					},
+					"response": []
+				}
+			],
+			"description": "Answer management endpoints"
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Get Comments by Answer",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answers/{{answerId}}/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers",
+								"{{answerId}}",
+								"comments"
+							]
+						},
+						"description": "Get all comments for a specific answer"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Great answer! Here's a screenshot...\",\n  \"imageUrls\": [\"{{commentImageUrl}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/answers/{{answerId}}/comments?userId={{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers",
+								"{{answerId}}",
+								"comments"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Create a new comment for an answer"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/comments/{{commentId}}?userId={{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comments",
+								"{{commentId}}"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Delete a comment (only comment owner can do this)"
+					},
+					"response": []
+				}
+			],
+			"description": "Comment management endpoints"
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "Get All Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tags",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tags"
+							]
+						},
+						"description": "Get all available tags"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tags/search?q=java",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tags",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "java"
+								}
+							]
+						},
+						"description": "Search tags by name"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Popular Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tags/popular",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tags",
+								"popular"
+							]
+						},
+						"description": "Get most popular tags"
+					},
+					"response": []
+				}
+			],
+			"description": "Tag management endpoints"
+		},
+		{
+			"name": "File Uploads",
+			"item": [
+				{
+					"name": "Upload Avatar",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "userId",
+									"value": "{{userId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/files/upload/avatar",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"files",
+								"upload",
+								"avatar"
+							]
+						},
+						"description": "Upload user avatar image"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Question Image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "questionId",
+									"value": "{{questionId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/files/upload/question",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"files",
+								"upload",
+								"question"
+							]
+						},
+						"description": "Upload image for a question"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Answer Image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "answerId",
+									"value": "{{answerId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/files/upload/answer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"files",
+								"upload",
+								"answer"
+							]
+						},
+						"description": "Upload image for an answer"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Comment Image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "commentId",
+									"value": "{{commentId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/files/upload/comment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"files",
+								"upload",
+								"comment"
+							]
+						},
+						"description": "Upload image for a comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Image",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/files/delete?imageUrl={{imageUrl}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"files",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "imageUrl",
+									"value": "{{imageUrl}}"
+								}
+							]
+						},
+						"description": "Delete image from Cloudinary (pass the full Cloudinary URL)"
+					},
+					"response": []
+				}
+			],
+			"description": "File upload and management endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "questionId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "answerId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "commentId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "avatarUrl",
+			"value": "https://res.cloudinary.com/your-cloud/image/upload/v1234567890/stackit/avatars/uuid-filename.jpg",
+			"type": "string"
+		},
+		{
+			"key": "questionImageUrl",
+			"value": "https://res.cloudinary.com/your-cloud/image/upload/v1234567890/stackit/questions/1/uuid-screenshot.png",
+			"type": "string"
+		},
+		{
+			"key": "answerImageUrl",
+			"value": "https://res.cloudinary.com/your-cloud/image/upload/v1234567890/stackit/answers/1/uuid-diagram.jpg",
+			"type": "string"
+		},
+		{
+			"key": "commentImageUrl",
+			"value": "https://res.cloudinary.com/your-cloud/image/upload/v1234567890/stackit/comments/1/uuid-image.png",
+			"type": "string"
+		},
+		{
+			"key": "imageUrl",
+			"value": "https://res.cloudinary.com/your-cloud/image/upload/v1234567890/stackit/avatars/uuid-filename.jpg",
+			"type": "string"
+		}
+	]
+} 
