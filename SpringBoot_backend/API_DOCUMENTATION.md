@@ -3,12 +3,8 @@
 ## Base URL
 
 ```
-http://localhost:8080/api
+https://<your-ngrok-url>/api
 ```
-
-## Authentication
-
-Currently using a simple user ID parameter system. In production, this should be replaced with JWT tokens.
 
 ---
 
@@ -256,6 +252,63 @@ Currently using a simple user ID parameter system. In production, this should be
 }
 ```
 
+### 2.4 Update Question
+
+**PUT** `/questions/{id}?userId={userId}`
+
+**Request Body:**
+
+```json
+{
+  "title": "Updated Question Title",
+  "description": "Updated description...",
+  "tags": ["java", "backend"],
+  "imageUrls": ["/api/files/questions/1/new-image.jpg"]
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Question updated successfully",
+  "questionId": 1
+}
+```
+
+### 2.5 Delete Question
+
+**DELETE** `/questions/{id}?userId={userId}`
+
+**Response:**
+
+```json
+{
+  "message": "Question deleted successfully"
+}
+```
+
+### 2.6 Vote on Question
+
+**POST** `/questions/{id}/vote?userId={userId}`
+
+**Request Body:**
+
+```json
+{
+  "vote": 1 // 1 for upvote, -1 for downvote, 0 to remove vote
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Vote recorded",
+  "voteCount": 6
+}
+```
+
 ### 2.4 Get Questions by Tag
 
 **GET** `/questions/tag/{tagName}`
@@ -472,9 +525,111 @@ Currently using a simple user ID parameter system. In production, this should be
 }
 ```
 
-### 3.3 Accept Answer
+### 3.3 Update Answer
 
-**POST** `/answers/{answerId}/accept?userId={userId}`
+**PUT** `/answers/{id}?userId={userId}`
+
+**Request Body:**
+
+```json
+{
+  "description": "Updated answer...",
+  "imageUrls": ["/api/files/answers/1/updated-diagram.png"]
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Answer updated successfully",
+  "answerId": 1
+}
+```
+
+### 3.4 Delete Answer
+
+**DELETE** `/answers/{id}?userId={userId}`
+
+**Response:**
+
+```json
+{
+  "message": "Answer deleted successfully"
+}
+```
+
+### 3.5 Vote on Answer
+
+**POST** `/answers/{id}/vote?userId={userId}`
+
+**Request Body:**
+
+```json
+{
+  "vote": 1
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Vote recorded",
+  "voteCount": 6
+}
+```
+
+---
+
+## 4. Comments Endpoints
+
+### 4.1 Get Comments by Answer
+
+**GET** `/answers/{answerId}/comments`
+
+**Response (Success - 200):**
+
+```json
+[
+  {
+    "id": 1,
+    "user": {
+      "id": 2,
+      "username": "jane_smith",
+      "email": "jane@example.com",
+      "role": "USER",
+      "avatarUrl": null,
+      "bio": null,
+      "reputation": 50,
+      "createdAt": "2024-01-01T09:00:00"
+    },
+    "content": "Great answer! Here's a screenshot...",
+    "imageUrls": [
+      "/api/files/comments/1/uuid-image1.jpg",
+      "/api/files/comments/1/uuid-image2.png"
+    ],
+    "createdAt": "2024-01-01T12:00:00",
+    "updatedAt": "2024-01-01T12:00:00"
+  }
+]
+```
+
+### 4.2 Create Comment
+
+**POST** `/answers/{answerId}/comments?userId={userId}`
+
+**Request Body:**
+
+```json
+{
+  "content": "Great answer! Here's a screenshot...",
+  "imageUrls": [
+    "/api/files/comments/1/image1.jpg",
+    "/api/files/comments/1/image2.png"
+  ]
+}
+```
 
 **Response (Success - 200):**
 
@@ -491,25 +646,81 @@ Currently using a simple user ID parameter system. In production, this should be
     "reputation": 50,
     "createdAt": "2024-01-01T09:00:00"
   },
-  "description": "You can use Spring Security with JWT tokens. Here's how...",
+  "content": "Great answer! Here's a screenshot...",
   "imageUrls": [
-    "/api/files/answers/1/uuid-diagram.jpg",
-    "/api/files/answers/1/uuid-code-screenshot.png"
+    "/api/files/comments/1/uuid-image1.jpg",
+    "/api/files/comments/1/uuid-image2.png"
   ],
-  "isAccepted": true,
-  "createdAt": "2024-01-01T11:00:00",
-  "updatedAt": "2024-01-01T11:00:00",
-  "voteCount": 5,
-  "commentCount": 2,
-  "userVote": 0
+  "createdAt": "2024-01-01T12:00:00",
+  "updatedAt": "2024-01-01T12:00:00"
+}
+```
+
+### 4.3 Update Comment
+
+**PUT** `/comments/{id}?userId={userId}`
+
+**Request Body:**
+
+```json
+{
+  "content": "Updated comment content",
+  "imageUrls": ["/api/files/comments/1/fixed-image.png"]
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Comment updated successfully",
+  "commentId": 1
+}
+```
+
+### 4.4 Delete Comment
+
+**DELETE** `/comments/{id}?userId={userId}`
+
+**Response:**
+
+```json
+{
+  "message": "Comment deleted successfully"
 }
 ```
 
 ---
 
-## 4. Tags Endpoints
+## 5. User Profile
 
-### 4.1 Get All Tags
+### 5.1 Update User Profile
+
+**PUT** `/users/{id}`
+
+**Request Body:**
+
+```json
+{
+  "username": "new_name",
+  "bio": "Updated bio",
+  "avatarUrl": "/api/files/avatars/new-avatar.jpg"
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Profile updated successfully"
+}
+```
+
+---
+
+## 6. Tags Endpoints
+
+### 6.1 Get All Tags
 
 **GET** `/tags`
 
@@ -538,7 +749,7 @@ Currently using a simple user ID parameter system. In production, this should be
 ]
 ```
 
-### 4.2 Search Tags
+### 6.2 Search Tags
 
 **GET** `/tags/search?q={query}`
 
@@ -561,7 +772,7 @@ Currently using a simple user ID parameter system. In production, this should be
 ]
 ```
 
-### 4.3 Get Popular Tags
+### 6.3 Get Popular Tags
 
 **GET** `/tags/popular`
 
@@ -592,9 +803,9 @@ Currently using a simple user ID parameter system. In production, this should be
 
 ---
 
-## 5. Data Models
+## 7. Data Models
 
-### 5.1 User Model
+### 7.1 User Model
 
 ```json
 {
@@ -609,7 +820,7 @@ Currently using a simple user ID parameter system. In production, this should be
 }
 ```
 
-### 5.2 Question Model
+### 7.2 Question Model
 
 ```json
 {
@@ -628,7 +839,7 @@ Currently using a simple user ID parameter system. In production, this should be
 }
 ```
 
-### 5.3 Answer Model
+### 7.3 Answer Model
 
 ```json
 {
@@ -645,7 +856,7 @@ Currently using a simple user ID parameter system. In production, this should be
 }
 ```
 
-### 5.4 Comment Model
+### 7.4 Comment Model
 
 ```json
 {
@@ -658,7 +869,7 @@ Currently using a simple user ID parameter system. In production, this should be
 }
 ```
 
-### 5.5 Tag Model
+### 7.5 Tag Model
 
 ```json
 {
@@ -671,7 +882,7 @@ Currently using a simple user ID parameter system. In production, this should be
 
 ---
 
-## 6. Error Responses
+## 8. Error Responses
 
 All endpoints return consistent error responses:
 
@@ -692,32 +903,32 @@ All endpoints return consistent error responses:
 
 ---
 
-## 7. Frontend Integration Notes
+## 9. Frontend Integration Notes
 
-### 7.1 Authentication Flow
+### 9.1 Authentication Flow
 
 1. User registers/logs in via `/auth/register` or `/auth/login`
 2. Store the returned user ID for subsequent API calls
 3. Pass `userId` as a query parameter for authenticated endpoints
 
-### 7.2 Pagination
+### 9.2 Pagination
 
 - Use `page` and `size` parameters for paginated endpoints
 - Page numbers start from 0
 - Default page size is 10
 
-### 7.3 Search and Filtering
+### 9.3 Search and Filtering
 
 - Use `/questions/search` for question search
 - Use `/tags/search` for tag search
 - Use `/questions/tag/{tagName}` for filtering by tag
 
-### 7.4 Real-time Features
+### 9.4 Real-time Features
 
 - Currently no WebSocket implementation
 - Consider polling for updates or implementing WebSocket endpoints
 
-### 7.5 File Uploads
+### 9.5 File Uploads
 
 - **Avatar Upload**: `POST /api/files/upload/avatar`
 - **Question Images**: `POST /api/files/upload/question`
@@ -729,7 +940,7 @@ All endpoints return consistent error responses:
 **Supported Formats**: JPEG, PNG, GIF, WebP
 **Max File Size**: 10MB
 
-### 7.6 Image Retrieval
+### 9.6 Image Retrieval
 
 When you retrieve questions, answers, or comments, the `imageUrls` field will contain a list of full URLs that can be directly used in your frontend:
 
@@ -763,9 +974,9 @@ question.imageUrls.forEach((imageUrl) => {
 
 ---
 
-## 8. Testing the API
+## 10. Testing the API
 
-### 8.1 Using curl
+### 10.1 Using curl
 
 **Register a user:**
 
@@ -825,7 +1036,7 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
   }'
 ```
 
-### 8.2 Using Postman
+### 10.2 Using Postman
 
 1. Import the collection (if available)
 2. Set base URL to `http://localhost:8080/api`
@@ -834,16 +1045,16 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 
 ---
 
-## 9. Development Notes
+## 11. Development Notes
 
-### 9.1 Current Limitations
+### 11.1 Current Limitations
 
 - No JWT token authentication (using userId parameter)
 - No WebSocket real-time updates
 - No voting system implementation
 - No notification system
 
-### 9.2 Future Enhancements
+### 11.2 Future Enhancements
 
 - Implement proper JWT authentication
 - Add file upload endpoints
@@ -855,7 +1066,7 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 - Add question/answer editing
 - Add moderation features
 
-### 9.3 Security Considerations
+### 11.3 Security Considerations
 
 - Currently using simple userId parameter (not secure for production)
 - No rate limiting implemented
@@ -864,9 +1075,9 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 
 ---
 
-## 10. File Upload Endpoints
+## 12. File Upload Endpoints
 
-### 10.1 Upload Avatar
+### 12.1 Upload Avatar
 
 **POST** `/files/upload/avatar`
 
@@ -885,7 +1096,7 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 }
 ```
 
-### 10.2 Upload Question Image
+### 12.2 Upload Question Image
 
 **POST** `/files/upload/question`
 
@@ -904,7 +1115,7 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 }
 ```
 
-### 10.3 Upload Answer Image
+### 12.3 Upload Answer Image
 
 **POST** `/files/upload/answer`
 
@@ -923,7 +1134,7 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 }
 ```
 
-### 10.4 Upload Comment Image
+### 12.4 Upload Comment Image
 
 **POST** `/files/upload/comment`
 
@@ -942,7 +1153,7 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 }
 ```
 
-### 10.5 Serve File
+### 12.5 Serve File
 
 **GET** `/files/{directory}/{filename}`
 
@@ -950,7 +1161,7 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 
 - Returns the image file with appropriate content type
 
-### 10.6 Delete File
+### 12.6 Delete File
 
 **DELETE** `/files/{filePath}`
 
@@ -964,95 +1175,15 @@ curl -X POST "http://localhost:8080/api/questions?userId=1" \
 
 ---
 
-## 11. Comments Endpoints
+## 13. CORS & ngrok Notes
 
-### 11.1 Get Comments by Answer
-
-**GET** `/answers/{answerId}/comments`
-
-**Response (Success - 200):**
-
-```json
-[
-  {
-    "id": 1,
-    "user": {
-      "id": 2,
-      "username": "jane_smith",
-      "email": "jane@example.com",
-      "role": "USER",
-      "avatarUrl": null,
-      "bio": null,
-      "reputation": 50,
-      "createdAt": "2024-01-01T09:00:00"
-    },
-    "content": "Great answer! Here's a screenshot...",
-    "imageUrls": [
-      "/api/files/comments/1/uuid-image1.jpg",
-      "/api/files/comments/1/uuid-image2.png"
-    ],
-    "createdAt": "2024-01-01T12:00:00",
-    "updatedAt": "2024-01-01T12:00:00"
-  }
-]
-```
-
-### 11.2 Create Comment
-
-**POST** `/answers/{answerId}/comments?userId={userId}`
-
-**Request Body:**
-
-```json
-{
-  "content": "Great answer! Here's a screenshot...",
-  "imageUrls": [
-    "/api/files/comments/1/image1.jpg",
-    "/api/files/comments/1/image2.png"
-  ]
-}
-```
-
-**Response (Success - 200):**
-
-```json
-{
-  "id": 1,
-  "user": {
-    "id": 2,
-    "username": "jane_smith",
-    "email": "jane@example.com",
-    "role": "USER",
-    "avatarUrl": null,
-    "bio": null,
-    "reputation": 50,
-    "createdAt": "2024-01-01T09:00:00"
-  },
-  "content": "Great answer! Here's a screenshot...",
-  "imageUrls": [
-    "/api/files/comments/1/uuid-image1.jpg",
-    "/api/files/comments/1/uuid-image2.png"
-  ],
-  "createdAt": "2024-01-01T12:00:00",
-  "updatedAt": "2024-01-01T12:00:00"
-}
-```
-
-### 11.3 Delete Comment
-
-**DELETE** `/comments/{commentId}?userId={userId}`
-
-**Response (Success - 200):**
-
-```json
-{
-  "message": "Comment deleted successfully"
-}
-```
+- If using ngrok, set your backend CORS config to allow your ngrok URL (e.g., `https://abc12345.ngrok-free.app`).
+- All API endpoints are under `/api` (e.g., `/api/questions`).
+- For local and ngrok testing, update your Postman `baseUrl` accordingly.
 
 ---
 
-## 12. Quick Start for Frontend
+## 14. Quick Start for Frontend
 
 1. **Start the backend server:**
 
